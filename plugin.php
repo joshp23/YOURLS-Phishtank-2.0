@@ -135,7 +135,7 @@ function display_phlagpage($keyword) {
         $url   = yourls_get_keyword_longurl( $keyword );
         $base  = YOURLS_SITE;
 	$img   = yourls_plugin_url( dirname( __FILE__ ).'/assets/caution.png' );
-	$css   = yourls_plugin_url( dirname( __FILE__ ).'/assets/bootstrap.min.css';
+	$css   = yourls_plugin_url( dirname( __FILE__ ).'/assets/bootstrap.min.css');
 
 	$vars = array();
 		$vars['keyword'] = $keyword;
