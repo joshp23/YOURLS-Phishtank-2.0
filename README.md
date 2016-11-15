@@ -17,7 +17,7 @@ Phishtank 2.0 for YOURLS is a functiolnal rewrite of the old phishtank plugin, w
 2. A Phishtank API key (optional, strongly reccomended if you anticipate high volume)
 
 ### Installation
-1. Download, extract, and copy YOURLS-Phishtank-2.0 to your YOURLS/user/plugins/ folder
+1. Download, extract, and copy the phishtank-2.0 folder to your YOURLS/user/plugins/ folder
 2. Enable Phishtank 2.0 in the "Manage Plugins" page under the Admin section of YOURLS
 3. Visit the new Options page for Phishtank, enter in your API key, make your choice regarding dirty old links.
 4. Have Fun!
