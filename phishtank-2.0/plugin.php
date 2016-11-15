@@ -41,9 +41,14 @@ function phishtank_do_page() {
 
 	$phishtank_rechech = yourls_get_option( 'phishtank_rechech' );
 	
-	if ($phishtank_rechech == "true" || $phishtank_rechech == null) $rck = 'checked';
-	if ($phishtank_rechech == "false") $rck = null;
-
+	if ($phishtank_rechech == "true" || $phishtank_rechech == null) {
+		$rck = 'checked';
+		$vis = 'inline';
+		}
+	if ($phishtank_rechech == "false") {
+		$rck = null;
+		$vis = 'none';
+		}
 	// Create nonce
 	$nonce = yourls_create_nonce( 'phishtank' );
 
@@ -64,13 +69,15 @@ function phishtank_do_page() {
 		  </label>
 		</div>
 
-		<p>You can decide how to handle old links that are found to be dirty on a re-check here. <b>Default is to delete them.</b> Check below to preserve these dirty old links, and display a warning page on redirect isntead.</p>
-
-		<div class="checkbox">
-		  <label>
-		    <input type="hidden" name="phishtank_soft" value="false" />
-		    <input name="phishtank_soft" type="checkbox" value="true" $ck > Soft on Spam?
-		  </label>
+		<div style="display:$vis;" >
+			<p>You can decide how to handle old links that are found to be dirty on a re-check here. <b>Default is to delete them.</b> Check below to preserve these dirty old links, and display a warning page on redirect isntead.</p>
+		
+			<div class="checkbox">
+			  <label>
+			    <input type="hidden" name="phishtank_soft" value="false" />
+			    <input name="phishtank_soft" type="checkbox" value="true" $ck > Soft on Spam?
+			  </label>
+			</div>
 		</div>
 		<p><input type="submit" value="Submit" /></p>
 		</form>
