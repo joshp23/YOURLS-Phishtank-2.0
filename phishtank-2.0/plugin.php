@@ -29,7 +29,7 @@ function phishtank_do_page() {
 		// Process form - update option in database
 		yourls_update_option( 'phishtank_api_key', $_POST['phishtank_api_key'] );
 		if(isset($_POST['phishtank_soft'])) yourls_update_option( 'phishtank_soft', $_POST['phishtank_soft'] );
-		if(isset($_POST['phishtank_rechech'])) yourls_update_option( 'phishtank_rechech', $_POST['phishtank_rechech'] );
+		if(isset($_POST['phishtank_recheck'])) yourls_update_option( 'phishtank_recheck', $_POST['phishtank_recheck'] );
 	}
 
 	// Get values from database
@@ -39,13 +39,13 @@ function phishtank_do_page() {
 	if ($phishtank_soft == "true") $ck = 'checked';
 	if ($phishtank_soft == "false" || $phishtank_soft == null) $ck = null;
 
-	$phishtank_rechech = yourls_get_option( 'phishtank_rechech' );
+	$phishtank_recheck = yourls_get_option( 'phishtank_recheck' );
 	
-	if ($phishtank_rechech == "true" || $phishtank_rechech == null) {
+	if ($phishtank_recheck == "true" || $phishtank_recheck == null) {
 		$rck = 'checked';
 		$vis = 'inline';
 		}
-	if ($phishtank_rechech == "false") {
+	if ($phishtank_recheck == "false") {
 		$rck = null;
 		$vis = 'none';
 		}
@@ -64,8 +64,8 @@ function phishtank_do_page() {
 
 		<div class="checkbox">
 		  <label>
-		    <input type="hidden" name="phishtank_rechech" value="false" />
-		    <input name="phishtank_rechech" type="checkbox" value="true" $rck > Recheck old links?
+		    <input type="hidden" name="phishtank_recheck" value="false" />
+		    <input name="phishtank_recheck" type="checkbox" value="true" $rck > Recheck old links?
 		  </label>
 		</div>
 
@@ -123,8 +123,8 @@ function phishtank_check_add( $false, $url ) {
 yourls_add_action( 'redirect_shorturl', 'phishtank_check_redirect' );
 function phishtank_check_redirect( $url, $keyword = false ) {
 
-	$phishtank_rechech = yourls_get_option( 'phishtank_rechech' );
-	if ($phishtank_rechech == "true" || $phishtank_rechech == null) {
+	$phishtank_recheck = yourls_get_option( 'phishtank_recheck' );
+	if ($phishtank_recheck == "true" || $phishtank_recheck == null) {
 
 		if( is_array( $url ) && $keyword == false ) {
 			$keyword = $url[1];
