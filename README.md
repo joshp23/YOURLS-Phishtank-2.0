@@ -5,12 +5,13 @@
 Phishtank 2.0 for YOURLS is a functiolnal rewrite of the old phishtank plugin, which seems abondoned. There are some noticable additions to the code.
 
 ### Features
-1. This plugin will check URL submissions against [Phishtanks's](https://www.phishtank.com/) blacklist, and it will block any blacklisted submissions.
-2. This plugin can re-check old links when they are clicked to see if they have been blacklisted since 1st submitted. This funtion can be disabled in the admin section.
-3. If old links are being checked, you can set an option in the admin section to preserve old links that are found to be bad, redirecting the user to an informational warning page. Optionally, you can rely on the default behavior and have bad links deleted when discovered in the blacklist.
-4. You can customize the danger.php to offer any warning you see fit.
-5. You can set an option in the admin section to add your Phishtank API key, if you have one.
+1. Checks URL submissions against [Phishtanks's](https://www.phishtank.com/) blacklist, and blocks any blacklisted submissions.
+2. Will optionally re-check old links when they are clicked to see if they have been blacklisted since 1st submitted.
+3. Can delete or preserve and intercept old links that fail recheck.
+4. You can customize the intercept page, or use your own url.
+5. You can add your Phishtank API key, if you have one.
 6. Uses base64 instead of urlencode to send url to Phishtank
+7. Uses the YOURLS admin section for option setting. No config files.
 
 #### NOTE: The options are idiot-proof. If options are never submitted, null values are accepted by the plugin to reflect positive default selections.
 
