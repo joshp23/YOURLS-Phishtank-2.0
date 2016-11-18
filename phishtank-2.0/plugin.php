@@ -28,27 +28,41 @@ function phishtank_do_page() {
 		
 		// Process form - update option in database
 		yourls_update_option( 'phishtank_api_key', $_POST['phishtank_api_key'] );
-		if(isset($_POST['phishtank_soft'])) yourls_update_option( 'phishtank_soft', $_POST['phishtank_soft'] );
 		if(isset($_POST['phishtank_recheck'])) yourls_update_option( 'phishtank_recheck', $_POST['phishtank_recheck'] );
+		if(isset($_POST['phishtank_soft'])) yourls_update_option( 'phishtank_soft', $_POST['phishtank_soft'] );
+		if(isset($_POST['phishtank_cust_toggle'])) yourls_update_option( 'phishtank_cust_toggle', $_POST['phishtank_cust_toggle'] );
 	}
 
 	// Get values from database
 	$phishtank_api_key = yourls_get_option( 'phishtank_api_key' );
-	$phishtank_soft = yourls_get_option( 'phishtank_soft' );
-	
-	if ($phishtank_soft == "true") $ck = 'checked';
-	if ($phishtank_soft == "false" || $phishtank_soft == null) $ck = null;
-
 	$phishtank_recheck = yourls_get_option( 'phishtank_recheck' );
-	
-	if ($phishtank_recheck == "true" || $phishtank_recheck == null) {
-		$rck = 'checked';
-		$vis = 'inline';
+	$phishtank_soft = yourls_get_option( 'phishtank_soft' );
+	$phishtank_cust_toggle = yourls_get_option( 'phishtank_cust_toggle' );
+	$phishtank_intercept = yourls_get_option( 'phishtank_intercept' );
+
+	// set defaults
+	if ($phishtank_recheck !== "false") {
+		$rck_chk = 'checked';
+		$vis_rck = 'inline';
+		} else {
+		$rck_chk = null;
+		$vis_rck = 'none';
 		}
-	if ($phishtank_recheck == "false") {
-		$rck = null;
-		$vis = 'none';
+	if ($phishtank_soft !== "false") { 
+		$pl_ck = 'checked';
+		$vis_pl = 'inline';
+		} else {
+		$pl_ck = null;
+		$vis_pl = 'none';
 		}
+	if ($phishtank_cust_toggle !== "true") { 
+		$url_chk = null;
+		$vis_url = 'none';
+		} else {
+		$url_chk = 'checked';
+		$vis_url = 'inline';
+		}
+
 	// Create nonce
 	$nonce = yourls_create_nonce( 'phishtank' );
 
@@ -65,18 +79,29 @@ function phishtank_do_page() {
 		<div class="checkbox">
 		  <label>
 		    <input type="hidden" name="phishtank_recheck" value="false" />
-		    <input name="phishtank_recheck" type="checkbox" value="true" $rck > Recheck old links?
+		    <input name="phishtank_recheck" type="checkbox" value="true" $rck_chk > Recheck old links?
 		  </label>
 		</div>
 
-		<div style="display:$vis;" >
-			<p>You can decide how to handle old links that are found to be dirty on a re-check here. <b>Default is to delete them.</b> Check below to preserve these dirty old links, and display a warning page on redirect isntead.</p>
+		<div style="display:$vis_rck;" >
+			<p>You can decide to either preserve or delete links that fail a re-check here. <b>Default is to preserve them</b>, as many links tend not to stay blacklisted indefinately.</p>
 		
 			<div class="checkbox">
 			  <label>
 			    <input type="hidden" name="phishtank_soft" value="false" />
-			    <input name="phishtank_soft" type="checkbox" value="true" $ck > Soft on Spam?
+			    <input name="phishtank_soft" type="checkbox" value="true" $pl_ck > Preserve links & intercept on failed re-check?
 			  </label>
+			</div>
+
+			<div class="checkbox" style="display:$vis_pl;">
+			  <label>
+				<input name="phishtank_cust_toggle" type="hidden" value="false" /><br>
+				<input name="phishtank_cust_toggle" type="checkbox" value="true" $url_chk >Use Custom Intercept URL?
+			  </label>
+			</div>
+			<div style="display:$vis_url;">
+				<p>Setting the above option without setting this will fall back to default behavior.</p>
+				<p><label for="phishtank_intercept">Intercept URL </label> <input type="text" size=40 id="phishtank_intercept" name="phishtank_intercept" value="$phishtank_intercept" /></p>
 			</div>
 		</div>
 		<p><input type="submit" value="Submit" /></p>
@@ -122,15 +147,13 @@ function phishtank_check_add( $false, $url ) {
 // Re-Check phishtank on redirection
 yourls_add_action( 'redirect_shorturl', 'phishtank_check_redirect' );
 function phishtank_check_redirect( $url, $keyword = false ) {
-
+	// Are we performing rechecks?
 	$phishtank_recheck = yourls_get_option( 'phishtank_recheck' );
 	if ($phishtank_recheck == "true" || $phishtank_recheck == null) {
-
 		if( is_array( $url ) && $keyword == false ) {
 			$keyword = $url[1];
 			$url = $url[0];
 		}
-	
 		// Check when the link was added
 		// If shorturl is fresh (ie probably clicked more often?) check once every 15 times, otherwise once every 5 times
 		// Define fresh = 3 days = 259200 secondes
@@ -138,15 +161,26 @@ function phishtank_check_redirect( $url, $keyword = false ) {
 		$now  = date( 'U' );
 		$then = date( 'U', strtotime( yourls_get_keyword_timestamp( $keyword ) ) );
 		$chances = ( ( $now - $then ) > 259200 ? 15 : 5 );
-	
 		if( $chances == mt_rand( 1, $chances ) ) {
 			if( phishtank_is_blacklisted( $url ) != false ) {
+				// We got a hit, do we delete or intercept?
 				$phishtank_soft = yourls_get_option( 'phishtank_soft' );
-				if( $phishtank_soft == "true" ) display_phlagpage();
-				if( $phishtank_soft == "false" || $phishtank_soft == null) {
-					// Delete link & die
-					yourls_delete_link_by_keyword( $keyword );
-					yourls_die( 'This domain has been blacklisted. This short URL has been deleted from our record.', 'Domain blacklisted', '403' );
+				// Intercept by default
+				if( $phishtank_soft !== "false" ) {
+					// use default intercept page?
+					$phishtank_cust_toggle = yourls_get_option( 'phishtank_cust_toggle' );
+					$phishtank_intercept = yourls_get_option( 'phishtank_intercept' );
+					if (($phishtank_cust_toggle == "true") && ($phishtank_intercept !== '')) {
+						// How to pass keyword and url to redirect?
+						yourls_redirect( $phishtank_intercept, 302 );
+						die ();
+					}
+					// Or go to default flag intercept 
+					display_phlagpage();
+				} else {
+				// Otherwise delete & die
+				yourls_delete_link_by_keyword( $keyword );
+				yourls_die( 'The page that you are trying to visit has been blacklisted. We have deleted this link from our record. Have a nice day', 'Domain blacklisted', '403' );
 				} 
 			}
 		}
@@ -154,7 +188,7 @@ function phishtank_check_redirect( $url, $keyword = false ) {
 	}
 	// Re-check disabled, move along
 }
-// Soft on Spam ~ interstitial warning
+// Soft on Spam ~ intercept warning
 function display_phlagpage($keyword) {
 
         $title = yourls_get_keyword_title( $keyword );
@@ -172,11 +206,11 @@ function display_phlagpage($keyword) {
 		$vars['img'] = $img;
 		$vars['css'] = $css;
 
-	$notice = file_get_contents( dirname( __FILE__ ) . '/danger.php' );
-	// Replace all %stuff% in the notice with variable $stuff
-	$notice = preg_replace_callback( '/%([^%]+)?%/', function( $match ) use( $vars ) { return $vars[ $match[1] ]; }, $danger );
+	$intercept = file_get_contents( dirname( __FILE__ ) . '/assets/intercept.php' );
+	// Replace all %stuff% in the intercept with variable $stuff
+	$intercept = preg_replace_callback( '/%([^%]+)?%/', function( $match ) use( $vars ) { return $vars[ $match[1] ]; }, $intercept );
 
-	echo $danger;
+	echo $intercept;
 
 	die();
 }
