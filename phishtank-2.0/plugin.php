@@ -67,6 +67,7 @@ function phishtank_do_page() {
 	$nonce = yourls_create_nonce( 'phishtank' );
 
 	echo <<<HTML
+	<div id="wrap">
 		<h2>Phishtank API Key</h2>
 		<p>You can use Phistank's API without a key, but you will get a higher rate limit if you use one. <a href="https://www.phishtank.com/" target="_blank">Click here</a> to learn more, or to register this application and obtain a key.</p>
 		<form method="post">
@@ -106,6 +107,7 @@ function phishtank_do_page() {
 		</div>
 		<p><input type="submit" value="Submit" /></p>
 		</form>
+	</div>
 HTML;
 }
 
