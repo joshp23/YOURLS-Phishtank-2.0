@@ -30,7 +30,7 @@
 					<li>Page title: <strong>%title%</strong></li>
 					<li>Target URL: <strong><a href="%base%/%keyword%">%url%</a></strong></li>
 				</ul>
-				<p>That target has been <span class="text-danger">blacklisted</span> by the <a herf="https://www.phishtank.com/" target="_blank">Phishtank</a> community.</p>
+				<p>That target has been <span class="text-danger">blacklisted</span> by the <a href="https://www.phishtank.com/" target="_blank">Phishtank</a> community.</p>
 
 				<p><strong><a href="https://staysafeonline.org/stay-safe-online/keep-a-clean-machine/spam-and-phishing" target="_blank">Click here</a></strong> for some usefull informaiton on phishing, and keeping yourself safe online.
 				</ br>

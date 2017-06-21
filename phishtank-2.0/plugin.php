@@ -3,7 +3,7 @@
 Plugin Name: Phishtank-2.0
 Plugin URI: https://github.com/joshp23/YOURLS-Phishtank-2.0
 Description: Prevent shortening malware URLs using phishtank API
-Version: 2.0
+Version: 2.1.0
 Author: Josh Panter
 Author URI: https://unfettered.net/
 */
@@ -67,7 +67,7 @@ function phishtank_do_page() {
 	$nonce = yourls_create_nonce( 'phishtank' );
 
 	echo <<<HTML
-	<div id="wrap">
+		<div id="wrap">
 		<h2>Phishtank API Key</h2>
 		<p>You can use Phistank's API without a key, but you will get a higher rate limit if you use one. <a href="https://www.phishtank.com/" target="_blank">Click here</a> to learn more, or to register this application and obtain a key.</p>
 		<form method="post">
@@ -92,6 +92,7 @@ function phishtank_do_page() {
 			    <input type="hidden" name="phishtank_soft" value="false" />
 			    <input name="phishtank_soft" type="checkbox" value="true" $pl_ck > Preserve links & intercept on failed re-check?
 			  </label>
+			  <p>Links that fail re-checks and are preserved are added to the <a href="https://github.com/joshp23/YOURLS-Compliance" target="_blank" >Compliance</a> flaglist if it is installed.</p>
 			</div>
 
 			<div class="checkbox" style="display:$vis_pl;">
@@ -107,7 +108,7 @@ function phishtank_do_page() {
 		</div>
 		<p><input type="submit" value="Submit" /></p>
 		</form>
-	</div>
+		</div>
 HTML;
 }
 
@@ -151,24 +152,28 @@ yourls_add_action( 'redirect_shorturl', 'phishtank_check_redirect' );
 function phishtank_check_redirect( $url, $keyword = false ) {
 	// Are we performing rechecks?
 	$phishtank_recheck = yourls_get_option( 'phishtank_recheck' );
-	if ($phishtank_recheck == "true" || $phishtank_recheck == null) {
+	if ($phishtank_recheck !== "false" ) {
 		if( is_array( $url ) && $keyword == false ) {
 			$keyword = $url[1];
 			$url = $url[0];
 		}
 		// Check when the link was added
-		// If shorturl is fresh (ie probably clicked more often?) check once every 15 times, otherwise once every 5 times
+		// If shorturl is fresh (ie probably clicked more often?) check once every 10 times, otherwise check every time
 		// Define fresh = 3 days = 259200 secondes
-		// TODO: when there's a shorturl_meta table, store last check date to allow checking every 2 or 3 days
 		$now  = date( 'U' );
 		$then = date( 'U', strtotime( yourls_get_keyword_timestamp( $keyword ) ) );
-		$chances = ( ( $now - $then ) > 259200 ? 15 : 5 );
+		$chances = ( ( $now - $then ) > 259200 ? 10 : 1 );
 		if( $chances == mt_rand( 1, $chances ) ) {
-			if( phishtank_is_blacklisted( $url ) != false ) {
+			if( phishtank_is_blacklisted( $url ) == true ) {
 				// We got a hit, do we delete or intercept?
 				$phishtank_soft = yourls_get_option( 'phishtank_soft' );
 				// Intercept by default
 				if( $phishtank_soft !== "false" ) {
+					// Compliance integration
+					if((yourls_is_active_plugin('compliance/plugin.php')) !== false) {
+						global $ydb;
+						$insert = $ydb->query("REPLACE INTO `flagged` (keyword, reason) VALUES ('$keyword', 'Phishtank Auto-Flag')");
+					}
 					// use default intercept page?
 					$phishtank_cust_toggle = yourls_get_option( 'phishtank_cust_toggle' );
 					$phishtank_intercept = yourls_get_option( 'phishtank_intercept' );
@@ -178,11 +183,11 @@ function phishtank_check_redirect( $url, $keyword = false ) {
 						die ();
 					}
 					// Or go to default flag intercept 
-					display_phlagpage();
+					display_phlagpage( $keyword );
 				} else {
 				// Otherwise delete & die
 				yourls_delete_link_by_keyword( $keyword );
-				yourls_die( 'The page that you are trying to visit has been blacklisted. We have deleted this link from our record. Have a nice day', 'Domain blacklisted', '403' );
+				yourls_die( 'The page that you are trying to visit has been blacklisted. We have deleted this link from our records. Have a nice day', 'Domain blacklisted', '403' );
 				} 
 			}
 		}
@@ -201,7 +206,6 @@ function display_phlagpage($keyword) {
 
 	$vars = array();
 		$vars['keyword'] = $keyword;
-		$vars['reason'] = $reason;
 		$vars['title'] = $title;
 		$vars['url'] = $url;
 		$vars['base'] = $base;

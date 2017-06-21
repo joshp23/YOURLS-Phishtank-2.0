@@ -12,6 +12,7 @@ Phishtank 2.0 for YOURLS is a functiolnal rewrite of the old phishtank plugin, w
 5. You can add your Phishtank API key, if you have one.
 6. Uses base64 instead of urlencode to send url to Phishtank
 7. Uses the YOURLS admin section for option setting. No config files.
+8. Integrates with the [Compliance](https://github.com/joshp23/YOURLS-Compliance) flaglist to track links that have "gone bad"
 
 #### NOTE: The options are idiot-proof. If options are never submitted, null values are accepted by the plugin to reflect positive default selections.
 
