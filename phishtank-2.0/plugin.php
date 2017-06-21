@@ -92,6 +92,7 @@ function phishtank_do_page() {
 			    <input type="hidden" name="phishtank_soft" value="false" />
 			    <input name="phishtank_soft" type="checkbox" value="true" $pl_ck > Preserve links & intercept on failed re-check?
 			  </label>
+			  <p>Links that fail re-checks and are preserved are added to the <a href="https://github.com/joshp23/YOURLS-Compliance" target="_blank" >Compliance</a> flaglist if it is installed.</p>
 			</div>
 
 			<div class="checkbox" style="display:$vis_pl;">
