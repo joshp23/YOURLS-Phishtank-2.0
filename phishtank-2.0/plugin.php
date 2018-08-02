@@ -3,7 +3,7 @@
 Plugin Name: Phishtank-2.0
 Plugin URI: https://github.com/joshp23/YOURLS-Phishtank-2.0
 Description: Prevent shortening malware URLs using phishtank API
-Version: 2.1.1
+Version: 2.1.2
 Author: Josh Panter
 Author URI: https://unfettered.net/
 */
@@ -173,9 +173,13 @@ function phishtank_check_redirect( $url, $keyword = false ) {
 					if((yourls_is_active_plugin('compliance/plugin.php')) !== false) {
 						global $ydb;
 						$table = 'flagged';
-						$binds = array('keyword' => $keyword);
-						$sql = "REPLACE INTO  `$table`  (keyword, reason) VALUES (:keyword, 'Phishtank Auto-Flag'";
-						$insert = $ydb->fetchObject($sql, $binds);
+						if (version_compare(YOURLS_VERSION, '1.7.3') >= 0) {
+							$binds = array('keyword' => $keyword);
+							$sql = "REPLACE INTO  `$table`  (keyword, reason) VALUES (:keyword, 'Phishtank Auto-Flag'";
+							$insert = $ydb->fetchObject($sql, $binds);
+						} else {
+							$insert = $ydb->query("REPLACE INTO `flagged` (keyword, reason) VALUES ('$keyword', 'Phishtank Auto-Flag')");
+						}
 					}
 					// use default intercept page?
 					$phishtank_cust_toggle = yourls_get_option( 'phishtank_cust_toggle' );
