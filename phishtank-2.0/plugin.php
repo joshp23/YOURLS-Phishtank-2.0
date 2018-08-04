@@ -3,7 +3,7 @@
 Plugin Name: Phishtank-2.0
 Plugin URI: https://github.com/joshp23/YOURLS-Phishtank-2.0
 Description: Prevent shortening malware URLs using phishtank API
-Version: 2.1.2
+Version: 2.1.3
 Author: Josh Panter
 Author URI: https://unfettered.net/
 */
@@ -207,7 +207,7 @@ function display_phlagpage($keyword) {
 
         $title = yourls_get_keyword_title( $keyword );
         $url   = yourls_get_keyword_longurl( $keyword );
-        $base  = YOURLS_SITE;
+        $base  = yourls_site_url();
 	$img   = yourls_plugin_url( dirname( __FILE__ ).'/assets/caution.png' );
 	$css   = yourls_plugin_url( dirname( __FILE__ ).'/assets/bootstrap.min.css');
 
