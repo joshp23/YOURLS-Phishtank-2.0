@@ -2,7 +2,7 @@
 
 #### An anti-spam blacklist-check for YOURLS using the Phishtank API
 
-Phishtank 2.0 for YOURLS is a functiolnal rewrite of the old phishtank plugin, which seems abondoned. There are some noticable additions to the code.
+Phishtank 2.0 for YOURLS is a functiolnal rewrite of the old phishtank plugin, which seems abandoned. There are some noticable additions to the code.
 
 ### Features
 1. Checks URL submissions against [Phishtanks's](https://www.phishtank.com/) blacklist, and blocks any blacklisted submissions.
