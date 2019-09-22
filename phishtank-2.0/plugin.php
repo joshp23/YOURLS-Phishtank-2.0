@@ -3,7 +3,7 @@
 Plugin Name: Phishtank-2.0
 Plugin URI: https://github.com/joshp23/YOURLS-Phishtank-2.0
 Description: Prevent shortening malware URLs using phishtank API
-Version: 2.1.3
+Version: 2.1.4
 Author: Josh Panter
 Author URI: https://unfettered.net/
 */
@@ -115,37 +115,21 @@ HTML;
 // Check phishtank when a new link is added
 yourls_add_filter( 'shunt_add_new_link', 'phishtank_check_add' );
 function phishtank_check_add( $false, $url ) {
-    // Sanitize URL and make sure there's a protocol
     $url = yourls_sanitize_url( $url );
-
-    // only check for 'http(s)'
-    if( !in_array( yourls_get_protocol( $url ), array( 'http://', 'https://' ) ) )
-        return $false;
-    
-    // is the url malformed?
-    if ( phishtank_is_blacklisted( $url ) === yourls_apply_filter( 'phishtank_malformed', 'malformed' ) ) {
-		return array(
-			'status' => 'fail',
-			'code'   => 'error:nourl',
-			'message' => yourls__( 'Missing or malformed URL' ),
-			'errorCode' => '400',
-		);
-    }
-	
-    // is the url blacklisted?
-    if ( phishtank_is_blacklisted( $url ) != false ) {
-		return array(
-			'status' => 'fail',
-			'code'   => 'error:spam',
-			'message' => 'This domain is blacklisted',
-			'errorCode' => '403',
-		);
-    }
-	
+	// Only check for http(s)
+    if( in_array( yourls_get_protocol( $url ), array( 'http://', 'https://' ) ) ) {
+		if ( phishtank_is_blacklisted( $url ) ) {
+			return array(
+				'status' => 'fail',
+				'code'   => 'error:spam',
+				'message' => 'This domain is blacklisted',
+				'errorCode' => '403',
+			);
+		}
+	}
 	// All clear, not interrupting the normal flow of events
 	return $false;
 }
-
 
 // Re-Check phishtank on redirection
 yourls_add_action( 'redirect_shorturl', 'phishtank_check_redirect' );
@@ -164,7 +148,7 @@ function phishtank_check_redirect( $url, $keyword = false ) {
 		$then = date( 'U', strtotime( yourls_get_keyword_timestamp( $keyword ) ) );
 		$chances = ( ( $now - $then ) > 259200 ? 10 : 1 );
 		if( $chances == mt_rand( 1, $chances ) ) {
-			if( phishtank_is_blacklisted( $url ) == true ) {
+			if( phishtank_is_blacklisted( $url ) ) {
 				// We got a hit, do we delete or intercept?
 				$phishtank_soft = yourls_get_option( 'phishtank_soft' );
 				// Intercept by default
@@ -233,7 +217,7 @@ function phishtank_is_blacklisted( $url ) {
 	$parsed = parse_url( $url );
 	
 	if( !isset( $parsed['host'] ) )
-		return yourls_apply_filter( 'phishtank_malformed', 'malformed' );
+		return yourls_apply_filter( 'phishtank_malformed', false );
 	
 	// Remove www. from domain (but not from www.com)
 	$parsed['host'] = preg_replace( '/^www\.(.+\.)/i', '$1', $parsed['host'] );
