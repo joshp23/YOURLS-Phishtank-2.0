@@ -156,14 +156,10 @@ function phishtank_check_redirect( $url, $keyword = false ) {
 					// Compliance integration
 					if((yourls_is_active_plugin('compliance/plugin.php')) !== false) {
 						global $ydb;
-						$table = 'flagged';
-						if (version_compare(YOURLS_VERSION, '1.7.3') >= 0) {
-							$binds = array('keyword' => $keyword, 'reason' => 'Phishtank Auto-Flag');
-							$sql = "REPLACE INTO `$table` (keyword, reason) VALUES (:keyword, :reason)";
-							$insert = $ydb->fetchAffected($sql, $binds);
-						} else {
-							$insert = $ydb->query("REPLACE INTO `flagged` (keyword, reason) VALUES ('$keyword', 'Phishtank Auto-Flag')");
-						}
+						$table = YOURLS_DB_PREFIX . 'flagged';
+						$binds = array('keyword' => $keyword, 'reason' => 'Phishtank Auto-Flag');
+						$sql = "REPLACE INTO `$table` (keyword, reason) VALUES (:keyword, :reason)";
+						$insert = $ydb->fetchAffected($sql, $binds);
 					}
 					// use default intercept page?
 					$phishtank_cust_toggle = yourls_get_option( 'phishtank_cust_toggle' );
