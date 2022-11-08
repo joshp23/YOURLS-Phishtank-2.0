@@ -31,6 +31,7 @@ function phishtank_do_page() {
 		if(isset($_POST['phishtank_recheck'])) yourls_update_option( 'phishtank_recheck', $_POST['phishtank_recheck'] );
 		if(isset($_POST['phishtank_soft'])) yourls_update_option( 'phishtank_soft', $_POST['phishtank_soft'] );
 		if(isset($_POST['phishtank_cust_toggle'])) yourls_update_option( 'phishtank_cust_toggle', $_POST['phishtank_cust_toggle'] );
+		if(isset($_POST['phishtank_intercept'])) yourls_update_option( 'phishtank_intercept', $_POST['phishtank_intercept'] ); 
 	}
 
 	// Get values from database
